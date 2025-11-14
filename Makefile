@@ -12,3 +12,8 @@ site_build: site_link
 
 site_deploy: site_link
 	mkdocs gh-deploy --clean
+
+PAYROLL_PORT ?= 8000
+
+payroll_app:
+	cd docs && python3 -m http.server $(PAYROLL_PORT)
