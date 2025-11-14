@@ -264,6 +264,11 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" integrity="sha512-vdMh3uCQ4LD1QPdvfTdA1qESJkXUVGzXFNJywCNWZ0mzTeEWRiuOtuOcgSb0T9QO0f1UXKuCd4WepCfP94InMw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js" integrity="sha512-J2eD+9ODpblKaD69h6qF3wOkxwQHd3lW0tfj1Y/GNyKm5RWC5HCmc8BZa3zv9j5KXwg/R3M4sKgbhCgkeP8EJw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.3/tesseract.min.js" integrity="sha512-FvZ56ytXcCkrV9pXmWxo0LiwjhrIU30vF1Tc/DcXVAqVWEdrwx9oUpj9dqX3oK4GSQ6Qc2s6iDuw4PINtkAOxw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
     const fileInput = document.getElementById('payroll-file');
