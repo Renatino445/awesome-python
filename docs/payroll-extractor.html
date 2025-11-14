@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estrattore Dati Buste Paga</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f7fa;
+      color: #1f2933;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: radial-gradient(circle at top left, #eef2ff, #f8fafc 55%, #e0f2fe);
+    }
+
+    .app-shell {
+      width: min(960px, 100%);
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 24px;
+      box-shadow: 0 30px 70px rgba(15, 23, 42, 0.12);
+      backdrop-filter: blur(12px);
+      padding: clamp(1.5rem, 4vw, 3rem);
+      display: grid;
+      gap: 1.75rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      color: #0f172a;
+    }
+
+    p {
+      margin: 0;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    .usage-steps {
+      margin: 1rem 0 0;
+      padding-left: 1.5rem;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    .usage-steps li + li {
+      margin-top: 0.4rem;
+    }
+
+    label {
+      font-weight: 600;
+      color: #1e293b;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .dropzone {
+      position: relative;
+      border: 2px dashed #94a3b8;
+      border-radius: 16px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      transition: border 0.2s ease, background 0.2s ease;
+      background: rgba(248, 250, 252, 0.8);
+    }
+
+    .dropzone.dragover {
+      border-color: #2563eb;
+      background: rgba(59, 130, 246, 0.08);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .dropzone button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 15px 30px rgba(37, 99, 235, 0.25);
+    }
+
+    .dropzone button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 20px 40px rgba(37, 99, 235, 0.35);
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.25rem;
+      border-radius: 14px;
+      background: rgba(59, 130, 246, 0.08);
+      color: #1d4ed8;
+      font-weight: 600;
+    }
+
+    .status svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: rgba(248, 250, 252, 0.9);
+      border-radius: 18px;
+      padding: 1.5rem;
+      box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.2);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 1.25rem;
+      color: #0f172a;
+      margin-bottom: 1rem;
+    }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .result-table th,
+    .result-table td {
+      text-align: left;
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    .result-table th {
+      width: 220px;
+      color: #1e293b;
+      font-weight: 600;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: "Fira Code", "SFMono-Regular", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: rgba(15, 23, 42, 0.85);
+      color: #e2e8f0;
+      padding: 1.25rem;
+      border-radius: 14px;
+      max-height: 360px;
+      overflow: auto;
+      font-size: 0.9rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .loader {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 3px solid rgba(37, 99, 235, 0.2);
+      border-top-color: #2563eb;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    footer {
+      font-size: 0.85rem;
+      color: #64748b;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .app-shell {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell" aria-labelledby="app-title">
+    <header>
+      <h1 id="app-title">Estrattore Dati da Buste Paga PDF</h1>
+      <p>
+        Carica una busta paga in formato PDF, nativa o scannerizzata: il sistema utilizza PDF.js per i documenti testuali e Tesseract.js per l'OCR delle scansioni.
+        I dati chiave rilevati (Nome, Codice Fiscale, Netto da Pagare, Periodo) saranno estratti automaticamente.
+      </p>
+      <ol class="usage-steps" aria-label="Istruzioni per l'utilizzo">
+        <li>Seleziona o trascina un file PDF nell'area tratteggiata.</li>
+        <li>Attendi che l'elaborazione e l'OCR si concludano: lo stato di avanzamento compare in alto.</li>
+        <li>Consulta i campi popolati nella sezione <em>Dati Estratti</em> e verifica il testo completo, se necessario.</li>
+        <li>Ripeti l'operazione con un nuovo file oppure chiudi la pagina quando hai terminato.</li>
+      </ol>
+    </header>
+
+    <section>
+      <label for="payroll-file">Seleziona o trascina un PDF</label>
+      <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-describedby="dropzone-help">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+        <p id="dropzone-help">Trascina qui il PDF oppure</p>
+        <button type="button">Scegli un file</button>
+        <input id="payroll-file" type="file" accept="application/pdf" />
+      </div>
+    </section>
+
+    <div id="status" class="status hidden" role="status">
+      <div class="loader" aria-hidden="true"></div>
+      <span id="status-text">Analisi in corso...</span>
+    </div>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Dati Estratti</h2>
+        <table class="result-table" aria-describedby="results-hint">
+          <tbody id="extracted-data"></tbody>
+        </table>
+        <p id="results-hint">I campi vengono popolati automaticamente se rilevati nel documento.</p>
+      </article>
+
+      <article class="card">
+        <h2>Testo Integrale</h2>
+        <pre id="full-text" aria-live="polite"></pre>
+      </article>
+    </section>
+
+    <footer>
+      Elaborazione effettuata localmente nel browser. Nessun dato viene inviato a server esterni.
+    </footer>
+  </main>
+
+  <canvas id="hidden-canvas" class="hidden"></canvas>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" integrity="sha512-vdMh3uCQ4LD1QPdvfTdA1qESJkXUVGzXFNJywCNWZ0mzTeEWRiuOtuOcgSb0T9QO0f1UXKuCd4WepCfP94InMw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js" integrity="sha512-J2eD+9ODpblKaD69h6qF3wOkxwQHd3lW0tfj1Y/GNyKm5RWC5HCmc8BZa3zv9j5KXwg/R3M4sKgbhCgkeP8EJw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.3/tesseract.min.js" integrity="sha512-FvZ56ytXcCkrV9pXmWxo0LiwjhrIU30vF1Tc/DcXVAqVWEdrwx9oUpj9dqX3oK4GSQ6Qc2s6iDuw4PINtkAOxw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    const fileInput = document.getElementById('payroll-file');
+    const dropzone = document.getElementById('dropzone');
+    const statusEl = document.getElementById('status');
+    const statusText = document.getElementById('status-text');
+    const extractedDataEl = document.getElementById('extracted-data');
+    const fullTextEl = document.getElementById('full-text');
+    const hiddenCanvas = document.getElementById('hidden-canvas');
+
+    const patterns = [
+      { label: 'Nome', regex: /(?:Nome(?:\s+e\s+Cognome)?)[\s:]+([A-ZÀ-ÖØ-Ý'`\-\s]{2,})/i },
+      { label: 'Cognome', regex: /Cognome[\s:]+([A-ZÀ-ÖØ-Ý'`\-\s]{2,})/i },
+      { label: 'Codice Fiscale', regex: /Cod(?:ice)?\s*Fiscale[\s:]+([A-Z0-9]{11,16})/i },
+      { label: 'Netto da Pagare', regex: /(?:Netto\s*(?:da\s*Pagare)?|Netto\s*in\s*busta)[\s:€]*([0-9]{1,3}(?:[\.,][0-9]{3})*(?:[\.,][0-9]{2})?)/i },
+      { label: 'Periodo Pagamento', regex: /Periodo[\s:]+((?:0[1-9]|1[0-2])\/(?:19|20)[0-9]{2}|[A-Za-zà-ù]+\s+(?:19|20)[0-9]{2})/i },
+      { label: 'Matricola', regex: /Matricola[\s:]+([A-Z0-9\/-]+)/i }
+    ];
+
+    const formatText = (value) => value ? value.trim().replace(/\s+/g, ' ') : '';
+
+    const setStatus = (message, show = true) => {
+      statusText.textContent = message;
+      statusEl.classList.toggle('hidden', !show);
+    };
+
+    const resetOutput = () => {
+      extractedDataEl.innerHTML = '';
+      fullTextEl.textContent = '';
+    };
+
+    const addRow = (label, value) => {
+      const row = document.createElement('tr');
+      const th = document.createElement('th');
+      th.textContent = label;
+      const td = document.createElement('td');
+      td.textContent = value || 'Non rilevato';
+      row.appendChild(th);
+      row.appendChild(td);
+      extractedDataEl.appendChild(row);
+    };
+
+    const readFile = (file) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(new Uint8Array(reader.result));
+        reader.onerror = (error) => reject(error);
+        reader.readAsArrayBuffer(file);
+      });
+    };
+
+    const extractTextFromPage = async (page) => {
+      const textContent = await page.getTextContent();
+      const textItems = textContent.items.map((item) => item.str).join(' ').trim();
+
+      if (textItems.length > 20) {
+        return textItems;
+      }
+
+      // Fallback to OCR for probable scanned page
+      const viewport = page.getViewport({ scale: 2.5 });
+      const context = hiddenCanvas.getContext('2d');
+      hiddenCanvas.width = viewport.width;
+      hiddenCanvas.height = viewport.height;
+
+      await page.render({ canvasContext: context, viewport }).promise;
+      const imageData = hiddenCanvas.toDataURL('image/png');
+
+      const { data: { text } } = await Tesseract.recognize(imageData, 'ita+eng', {
+        logger: ({ status, progress }) => {
+          if (status === 'recognizing text') {
+            const percentage = Math.round(progress * 100);
+            setStatus(`OCR in corso... ${percentage}%`);
+          }
+        }
+      });
+
+      context.clearRect(0, 0, hiddenCanvas.width, hiddenCanvas.height);
+      return text;
+    };
+
+    const analyzePdf = async (file) => {
+      resetOutput();
+      setStatus('Analisi del PDF in corso...');
+
+      try {
+        const pdfData = await readFile(file);
+        const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+        let combinedText = '';
+
+        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+          setStatus(`Elaborazione pagina ${pageNumber}/${pdf.numPages}...`);
+          const page = await pdf.getPage(pageNumber);
+          const pageText = await extractTextFromPage(page);
+          combinedText += `\n\n--- Pagina ${pageNumber} ---\n${pageText.trim()}`;
+        }
+
+        const normalizedText = combinedText.replace(/\s+/g, ' ').trim();
+
+        patterns.forEach(({ label, regex }) => {
+          const match = normalizedText.match(regex);
+          addRow(label, match ? formatText(match[1]) : 'Non rilevato');
+        });
+
+        fullTextEl.textContent = combinedText.trim();
+        setStatus('Analisi completata ✅', true);
+      } catch (error) {
+        console.error(error);
+        setStatus('Si è verificato un errore durante l\'analisi del PDF. Riprovare con un altro file.', true);
+      }
+    };
+
+    const handleFiles = (files) => {
+      const [file] = files;
+      if (!file) return;
+
+      if (file.type !== 'application/pdf') {
+        setStatus('Seleziona un file PDF valido.', true);
+        return;
+      }
+
+      analyzePdf(file);
+    };
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('keypress', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        fileInput.click();
+      }
+    });
+
+    dropzone.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone.addEventListener('drop', (event) => {
+      event.preventDefault();
+      dropzone.classList.remove('dragover');
+      handleFiles(event.dataTransfer.files);
+    });
+
+    fileInput.addEventListener('change', (event) => handleFiles(event.target.files));
+  </script>
+</body>
+</html>

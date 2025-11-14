@@ -15,6 +15,25 @@ An opinionated list of awesome Python frameworks, libraries, software and resour
 
 Inspired by [awesome-php](https://github.com/ziadoz/awesome-php).
 
+## Demo: Estrattore dati buste paga
+
+È possibile provare l'interfaccia HTML sperimentale per l'estrazione dei dati dalle buste paga aprendo il file `docs/payroll-extractor.html` tramite un semplice server locale. Avviare il server con:
+
+```bash
+make payroll_app
+```
+
+Quindi visitare [http://localhost:8000/payroll-extractor.html](http://localhost:8000/payroll-extractor.html) nel browser preferito. Interrompere il server con <kbd>Ctrl</kbd> + <kbd>C</kbd> quando si è terminato.
+
+### Utilizzo passo-passo
+
+1. Fare clic su **Scegli un file** (oppure trascinare il PDF nell'area tratteggiata) e selezionare una busta paga in formato PDF.
+2. Attendere il completamento dell'analisi: per i PDF scannerizzati potrebbe essere necessario qualche secondo in più per l'OCR.
+3. Leggere i campi riconosciuti nella scheda *Dati Estratti* e, se necessario, verificare il testo completo nella scheda *Testo Integrale*.
+4. Caricare un nuovo file ripetendo l'operazione oppure chiudere la pagina quando si è concluso.
+
+> ℹ️ L'elaborazione avviene interamente nel browser: è sufficiente una connessione a Internet per scaricare PDF.js e Tesseract.js al primo utilizzo.
+
 - [Awesome Python](#awesome-python)
     - [Admin Panels](#admin-panels)
     - [Algorithms and Design Patterns](#algorithms-and-design-patterns)
